@@ -98,7 +98,7 @@ def add_mwanaharusi_save(request):
     if request.method!="POST":
         return HttpResponse("Method Not Allowed")
     else:
-        form=AddStudentForm(request.POST,request.FILES)
+        form=AddMwanaharusiForm(request.POST,request.FILES)
         if form.is_valid():
             first_name=form.cleaned_data["first_name"]
             last_name=form.cleaned_data["last_name"]
@@ -118,22 +118,22 @@ def add_mwanaharusi_save(request):
 
             try:
                 user=CustomUser.objects.create_user(username=username,password=password,email=email,last_name=last_name,first_name=first_name,user_type=3)
-                user.students.address=address
+                user.mwanaharusis.address=address
                 course_obj=Courses.objects.get(id=course_id)
-                user.students.course_id=course_obj
-                user.students.session_start_year=session_start
-                user.students.session_end_year=session_end
-                user.students.gender=sex
-                user.students.profile_pic=profile_pic_url
+                user.mwanaharusis.course_id=course_obj
+                user.mwanaharusis.session_start_year=session_start
+                user.mwanaharusis.session_end_year=session_end
+                user.mwanaharusis.gender=sex
+                user.mwanaharusis.profile_pic=profile_pic_url
                 user.save()
-                messages.success(request,"Successfully Added Student")
-                return HttpResponseRedirect(reverse("add_student"))
+                messages.success(request,"Successfully Added Mwanaharusi")
+                return HttpResponseRedirect(reverse("add_mwanaharusi"))
             except:
-                messages.error(request,"Failed to Add Student")
-                return HttpResponseRedirect(reverse("add_student"))
+                messages.error(request,"Failed to Add Mwanaharusi")
+                return HttpResponseRedirect(reverse("add_mwanaharusi"))
         else:
-            form=AddStudentForm(request.POST)
-            return render(request, "hod_template/add_student_template.html", {"form": form})
+            form=AddMwanaharusiForm(request.POST)
+            return render(request, "hod_template/add_mwanaharusi_template.html", {"form": form})
 
 def add_subject(request):
     courses=Courses.objects.all()
@@ -163,9 +163,9 @@ def manage_staff(request):
     staffs=Staffs.objects.all()
     return render(request,"hod_template/manage_staff_template.html",{"staffs":staffs})
 
-def manage_student(request):
-    students=Students.objects.all()
-    return render(request,"hod_template/manage_student_template.html",{"students":students})
+def manage_mwanaharusi(request):
+    mwanaharusis=Mwanaharusis.objects.all()
+    return render(request,"hod_template/manage_mwananaharusi_template.html",{"mwanaharusis":mwanaharusis})
 
 def manage_course(request):
     courses=Courses.objects.all()
@@ -207,30 +207,30 @@ def edit_staff_save(request):
             messages.error(request,"Failed to Edit Staff")
             return HttpResponseRedirect(reverse("edit_staff",kwargs={"staff_id":staff_id}))
 
-def edit_student(request,student_id):
-    request.session['student_id']=student_id
-    student=Students.objects.get(admin=student_id)
-    form=EditStudentForm()
-    form.fields['email'].initial=student.admin.email
-    form.fields['first_name'].initial=student.admin.first_name
-    form.fields['last_name'].initial=student.admin.last_name
-    form.fields['username'].initial=student.admin.username
-    form.fields['address'].initial=student.address
-    form.fields['course'].initial=student.course_id.id
-    form.fields['sex'].initial=student.gender
-    form.fields['session_start'].initial=student.session_start_year
-    form.fields['session_end'].initial=student.session_end_year
-    return render(request,"hod_template/edit_student_template.html",{"form":form,"id":student_id,"username":student.admin.username})
+def edit_mwanaharusi(request,mwanaharusi_id):
+    request.session['mwanaharusi_id']=mwanaharusi_id
+    mwanaharusi=Mwanaharusis.objects.get(admin=mwanaharusi_id)
+    form=EditMwanaharusiForm()
+    form.fields['email'].initial=mwanaharusi.admin.email
+    form.fields['first_name'].initial=mwanaharusi.admin.first_name
+    form.fields['last_name'].initial=mwanaharusi.admin.last_name
+    form.fields['username'].initial=mwanaharusi.admin.username
+    form.fields['address'].initial=mwanaharusi.address
+    form.fields['course'].initial=mwanaharusi.course_id.id
+    form.fields['sex'].initial=mwanaharusi.gender
+    form.fields['session_start'].initial=mwanaharusi.session_start_year
+    form.fields['session_end'].initial=mwanaharusi.session_end_year
+    return render(request,"hod_template/edit_mwanaharusi_template.html",{"form":form,"id":mwanaharusi_id,"username":mwanaharusi.admin.username})
 
-def edit_student_save(request):
+def edit_mwanaharusi_save(request):
     if request.method!="POST":
         return HttpResponse("<h2>Method Not Allowed</h2>")
     else:
-        student_id=request.session.get("student_id")
-        if student_id==None:
-            return HttpResponseRedirect(reverse("manage_student"))
+        mwanaharusi_id=request.session.get("mwanaharusi_id")
+        if mwanaharusi_id==None:
+            return HttpResponseRedirect(reverse("manage_mwanaharusi"))
 
-        form=EditStudentForm(request.POST,request.FILES)
+        form=EditMwanaharusiForm(request.POST,request.FILES)
         if form.is_valid():
             first_name = form.cleaned_data["first_name"]
             last_name = form.cleaned_data["last_name"]
@@ -252,33 +252,33 @@ def edit_student_save(request):
 
 
             try:
-                user=CustomUser.objects.get(id=student_id)
+                user=CustomUser.objects.get(id=mwanaharusi_id)
                 user.first_name=first_name
                 user.last_name=last_name
                 user.username=username
                 user.email=email
                 user.save()
 
-                student=Students.objects.get(admin=student_id)
-                student.address=address
-                student.session_start_year=session_start
-                student.session_end_year=session_end
-                student.gender=sex
+                mwanaharusi=Mwanaharusis.objects.get(admin=mwanaharusi_id)
+                mwanaharusi.address=address
+                mwanaharusi.session_start_year=session_start
+                mwanaharusi.session_end_year=session_end
+                mwanaharusi.gender=sex
                 course=Courses.objects.get(id=course_id)
-                student.course_id=course
+                mwanaharusi.course_id=course
                 if profile_pic_url!=None:
-                    student.profile_pic=profile_pic_url
-                student.save()
-                del request.session['student_id']
-                messages.success(request,"Successfully Edited Student")
-                return HttpResponseRedirect(reverse("edit_student",kwargs={"student_id":student_id}))
+                    mwanaharusi.profile_pic=profile_pic_url
+                mwanaharusi.save()
+                del request.session['mwanaharusi_id']
+                messages.success(request,"Successfully Edited Mwanaharusi")
+                return HttpResponseRedirect(reverse("edit_mwanaharusi",kwargs={"mwanaharusi_id":mwanaharusi_id}))
             except:
-                messages.error(request,"Failed to Edit Student")
-                return HttpResponseRedirect(reverse("edit_student",kwargs={"student_id":student_id}))
+                messages.error(request,"Failed to Edit Mwanaharusi")
+                return HttpResponseRedirect(reverse("edit_mwanaharusi",kwargs={"mwanaharusi_id":mwanaharusi_id}))
         else:
-            form=EditStudentForm(request.POST)
-            student=Students.objects.get(admin=student_id)
-            return render(request,"hod_template/edit_student_template.html",{"form":form,"id":student_id,"username":student.admin.username})
+            form=EditMwanaharusiForm(request.POST)
+            mwanaharusi=Mwanaharusis.objects.get(admin=mwanaharusi_id)
+            return render(request,"hod_template/edit_mwanaharusi_template.html",{"form":form,"id":mwanaharusi_id,"username":mwanaharusi.admin.username})
 
 def edit_subject(request,subject_id):
     subject=Subjects.objects.get(id=subject_id)
@@ -334,17 +334,17 @@ def staff_feedback_message(request):
     feedbacks=FeedBackStaffs.objects.all()
     return render(request,"hod_template/staff_feedback_template.html",{"feedbacks":feedbacks})
 
-def student_feedback_message(request):
-    feedbacks=FeedBackStudent.objects.all()
-    return render(request,"hod_template/student_feedback_template.html",{"feedbacks":feedbacks})
+def mwanaharusi_feedback_message(request):
+    feedbacks=FeedBackMwanaharusi.objects.all()
+    return render(request,"hod_template/mwanaharusi_feedback_template.html",{"feedbacks":feedbacks})
 
 @csrf_exempt
-def student_feedback_message_replied(request):
+def mwanaharusi_feedback_message_replied(request):
     feedback_id=request.POST.get("id")
     feedback_message=request.POST.get("message")
 
     try:
-        feedback=FeedBackStudent.objects.get(id=feedback_id)
+        feedback=FeedBackMwanaharusi.objects.get(id=feedback_id)
         feedback.feedback_reply=feedback_message
         feedback.save()
         return HttpResponse("True")
@@ -368,21 +368,21 @@ def staff_leave_view(request):
     leaves=LeaveReportStaff.objects.all()
     return render(request,"hod_template/staff_leave_view.html",{"leaves":leaves})
 
-def student_leave_view(request):
-    leaves=LeaveReportStudent.objects.all()
-    return render(request,"hod_template/student_leave_view.html",{"leaves":leaves})
+def mwanaharusi_leave_view(request):
+    leaves=LeaveReportMwanaharusi.objects.all()
+    return render(request,"hod_template/mwanaharusi_leave_view.html",{"leaves":leaves})
 
-def student_approve_leave(request,leave_id):
-    leave=LeaveReportStudent.objects.get(id=leave_id)
+def mwanaharusi_approve_leave(request,leave_id):
+    leave=LeaveReportMwanaharusi.objects.get(id=leave_id)
     leave.leave_status=1
     leave.save()
-    return HttpResponseRedirect(reverse("student_leave_view"))
+    return HttpResponseRedirect(reverse("mwanaharusi_leave_view"))
 
-def student_disapprove_leave(request,leave_id):
-    leave=LeaveReportStudent.objects.get(id=leave_id)
+def mwanaharusi_disapprove_leave(request,leave_id):
+    leave=LeaveReportMwanaharusi.objects.get(id=leave_id)
     leave.leave_status=2
     leave.save()
-    return HttpResponseRedirect(reverse("student_leave_view"))
+    return HttpResponseRedirect(reverse("mwanaharusi_leave_view"))
 
 
 def staff_approve_leave(request,leave_id):
@@ -410,10 +410,10 @@ def send_staff_notification(request):
     url="https://fcm.googleapis.com/fcm/send"
     body={
         "notification":{
-            "title":"Student Management System",
+            "title":"Mwanaharusi Management System",
             "body":message,
-            "click_action":"https://studentmanagementsystem22.herokuapp.com/staff_all_notification",
-            "icon":"http://studentmanagementsystem22.herokuapp.com/static/dist/img/user2-160x160.jpg"
+            "click_action":"https://mwanaharusimanagementsystem22.herokuapp.com/staff_all_notification",
+            "icon":"http://mwanaharusimanagementsystem22.herokuapp.com/static/dist/img/user2-160x160.jpg"
         },
         "to":token
     }
