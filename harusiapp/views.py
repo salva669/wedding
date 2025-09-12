@@ -29,7 +29,7 @@ def user_login(request):
             messages.error(request, 'Invalid username or password.')
             return redirect('login')  # Redirect back to login page on failure
     else:
-        return render(request, 'login.html')  # Display login form if method is GET
+        return render(request, 'home_content.html')  # Display login form if method is GET
 
 
 def IndexPageView(request):
