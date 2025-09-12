@@ -1,19 +1,136 @@
-# models.py
-from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.contrib.auth.models import AbstractUser
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
-class UserType(models.Model):
-    name = models.CharField(max_length=50)
-    description = models.TextField()
-
-    def __str__(self):
-        return self.name
-
+# Create your models here.
 class CustomUser(AbstractUser):
-    user_type = models.ForeignKey(UserType, null=True, on_delete=models.CASCADE)
+    user_type_data=((1, "HOD"), (2, "Staff"), (3, "Mwanaharusi"))
+    user_type=models.CharField(default=1, choices=user_type_data, max_length=10)
 
-    def __str__(self):
-        return self.username
+class AdminHOD(models.Model):
+    id=models.AutoField(primary_key=True)
+    admin=models.OneToOneField(CustomUser,on_delete=models.CASCADE)
+    created_at=models.DateTimeField(auto_now_add=True)
+    updated_at=models.DateTimeField(auto_now_add=True)
+    objects=models.Manager()
 
-    # REQUIRED_FIELDS tells Django which fields are required when creating a superuser
-    REQUIRED_FIELDS = ['user_type']
+class Staffs(models.Model):
+    id=models.AutoField(primary_key=True)
+    admin=models.OneToOneField(CustomUser,on_delete=models.CASCADE)
+    address=models.TextField()
+    created_at=models.DateTimeField(auto_now_add=True)
+    updated_at=models.DateTimeField(auto_now_add=True)
+    objects=models.Manager()
+
+class Courses(models.Model):
+    id=models.AutoField(primary_key=True)
+    course_name=models.CharField(max_length=255)
+    created_at=models.DateTimeField(auto_now_add=True)
+    updated_at=models.DateTimeField(auto_now_add=True)
+    objects=models.Manager()
+
+class Subjects(models.Model):
+    id=models.AutoField(primary_key=True)
+    subject_name=models.CharField(max_length=255)
+    course_id=models.ForeignKey(Courses,on_delete=models.CASCADE,default=1)
+    staff_id=models.ForeignKey(CustomUser,on_delete=models.CASCADE)
+    created_at=models.DateTimeField(auto_now_add=True)
+    updated_at=models.DateTimeField(auto_now_add=True)
+    objects=models.Manager()
+
+class Mwanaharusis(models.Model):
+    id=models.AutoField(primary_key=True)
+    admin=models.OneToOneField(CustomUser,on_delete=models.CASCADE)
+    gender=models.CharField(max_length=255)
+    profile_pic=models.FileField()
+    address=models.TextField()
+    course_id=models.ForeignKey(Courses,on_delete=models.DO_NOTHING)
+    session_start_year=models.DateField()
+    session_end_year=models.DateField()
+    created_at=models.DateTimeField(auto_now_add=True)
+    updated_at=models.DateTimeField(auto_now_add=True)
+    objects = models.Manager()
+
+class LeaveReportMwanaharusi(models.Model):
+    id=models.AutoField(primary_key=True)
+    mwanaharusi_id=models.ForeignKey(Mwanaharusis,on_delete=models.CASCADE)
+    leave_date=models.CharField(max_length=255)
+    leave_message=models.TextField()
+    leave_status=models.IntegerField(default=0)
+    created_at=models.DateTimeField(auto_now_add=True)
+    updated_at=models.DateTimeField(auto_now_add=True)
+    objects=models.Manager()
+
+class LeaveReportStaff(models.Model):
+    id = models.AutoField(primary_key=True)
+    staff_id = models.ForeignKey(Staffs, on_delete=models.CASCADE)
+    leave_date = models.CharField(max_length=255)
+    leave_message = models.TextField()
+    leave_status = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now_add=True)
+    objects = models.Manager()
+
+class FeedBackMwanaharusi(models.Model):
+    id = models.AutoField(primary_key=True)
+    mwanaharusi_id = models.ForeignKey(Mwanaharusis, on_delete=models.CASCADE)
+    feedback = models.TextField()
+    feedback_reply = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now_add=True)
+    objects = models.Manager()
+
+class FeedBackStaffs(models.Model):
+    id = models.AutoField(primary_key=True)
+    staff_id = models.ForeignKey(Staffs, on_delete=models.CASCADE)
+    feedback = models.TextField()
+    feedback_reply=models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now_add=True)
+    objects = models.Manager()
+
+class NotificationMwanaharusi(models.Model):
+    id = models.AutoField(primary_key=True)
+    mwanaharusi_id = models.ForeignKey(Mwanaharusis, on_delete=models.CASCADE)
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now_add=True)
+    objects = models.Manager()
+
+class NotificationStaffs(models.Model):
+    id = models.AutoField(primary_key=True)
+    staff_id = models.ForeignKey(Staffs, on_delete=models.CASCADE)
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now_add=True)
+    objects = models.Manager()
+
+class MwanaharusiResult(models.Model):
+    id=models.AutoField(primary_key=True)
+    mwanaharusi_id=models.ForeignKey(Mwanaharusis,on_delete=models.CASCADE)
+    subject_id=models.ForeignKey(Subjects,on_delete=models.CASCADE)
+    subject_exam_marks=models.FloatField(default=0)
+    subject_assignment_marks=models.FloatField(default=0)
+    created_at=models.DateField(auto_now_add=True)
+    updated_at=models.DateField(auto_now_add=True)
+    objects=models.Manager()
+    
+@receiver(post_save,sender=CustomUser)
+def create_user_profile(sender,instance,created,**kwargs):
+    if created:
+        if instance.user_type==1:
+            AdminHOD.objects.create(admin=instance)
+        if instance.user_type==2:
+            Staffs.objects.create(admin=instance,address="")
+        if instance.user_type==3:
+            Mwanaharusis.objects.create(admin=instance,course_id=Courses.objects.get(id=1),session_start_year="2020-01-01",session_end_year="2021-01-01",address="",profile_pic="",gender="")
+
+@receiver(post_save,sender=CustomUser)
+def save_user_profile(sender,instance,**kwargs):
+    if instance.user_type==1:
+        instance.adminhod.save()
+    if instance.user_type==2:
+        instance.staffs.save()
+    if instance.user_type==3:
+        instance.mwanaharusis.save()
