@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views, admin_views
+from . import views
 from harusi import settings
 from django.conf.urls.static import static
 from django.contrib import admin
