@@ -6,30 +6,25 @@ from django.contrib import messages
 from django.http import HttpResponseRedirect, HttpResponse
 
 # Create your views here.
-def user_login(request):
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
+def ShowLoginPage(request):
+    return render(request, 'login_page.html')
 
-        # Authenticate the user
-        user = authenticate(request, username=username, password=password)
-
-        if user is not None:
-            # Login the user
-            login(request, user)
-
-            # Check user type and redirect accordingly
-            if user.user_type.name == 'Admin':
-                return redirect('home_content')  # Use URL pattern name here
-            else:
-                # Redirect other user types or provide a message
-                messages.error(request, 'Access restricted for this user type.')
-                return redirect('login')
-        else:
-            messages.error(request, 'Invalid username or password.')
-            return redirect('login')  # Redirect back to login page on failure
+def doLogin(request):
+    if request.method!="POST":
+        return HttpResponse("<h2>Method Not Allowed</h2>")
     else:
-        return render(request, 'home_content.html')  # Display login form if method is GET
+        user=EmailBackEnd.authenticate(request,username=request.POST.get("email"),password=request.POST.get("password"))
+        if user!=None:
+            login(request,user)
+            if user.user_type=="1":
+                return HttpResponseRedirect('admin_home')
+            elif user.user_type=="2":
+                return HttpResponseRedirect(reverse("staff_home"))
+            else:
+                return HttpResponseRedirect(reverse("student_home"))
+        else:
+            messages.error(request,"Invalid Login Details")
+            return HttpResponseRedirect("/")
 
 
 def IndexPageView(request):
@@ -37,3 +32,13 @@ def IndexPageView(request):
 
 def LoginPageView(request):
     return render(request, 'ingia.html')
+
+def GetUserDetails(request):
+    if request.user!=None:
+        return HttpResponse("User : "+request.user.email+" usertype : "+str(request.user.user_type))
+    else:
+        return HttpResponse("Please Login First")
+
+def logout_user(request):
+    logout(request)
+    return HttpResponseRedirect("/")

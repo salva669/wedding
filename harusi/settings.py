@@ -77,12 +77,12 @@ WSGI_APPLICATION = 'harusi.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.db.backends.mysql',
         'NAME': 'harusi_database',
-        'USER': 'salviz',
-        'PASSWORD': '1Chibole',
+        'USER': 'admin',
+        'PASSWORD': 'Admin123',
         'HOST': 'localhost',
-        'PORT': '5432',
+        'PORT': '3306',
     }
 }
 
@@ -135,4 +135,5 @@ MEDIA_ROOT = os.path.join(BASE_DIR,'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-AUTH_USER_MODEL = 'harusiapp.CustomUser'
+AUTH_USER_MODEL = "harusiapp.CustomUser"
+AUTHENTICATION_BACKENDS=['harusiapp.EmailBackEnd.EmailBackEnd']

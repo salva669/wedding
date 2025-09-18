@@ -8,7 +8,7 @@ from django.forms import model_to_dict
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
-from schoolapp.models import Subjects, Mwanaharusis, LeaveReportStaff, Staffs, FeedBackStaffs, CustomUser, Courses, NotificationStaffs
+from harusiapp.models import Subjects, Mwanaharusis, LeaveReportStaff, Staffs, FeedBackStaffs, CustomUser, Courses, NotificationStaffs
 
 def staff_home(request):
     #For Fetch All Mwanaharusi Under Staff
