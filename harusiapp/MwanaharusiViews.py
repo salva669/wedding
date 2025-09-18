@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
-from schoolapp.models import Students, Courses, Subjects, CustomUser, LeaveReportStudent, FeedBackStudent, NotificationStudent, StudentResult
+from harusiapp.models import Students, Courses, Subjects, CustomUser, LeaveReportStudent, FeedBackStudent, NotificationStudent, StudentResult
 
 def student_home(request):
     student_obj=Students.objects.get(admin=request.user.id)
